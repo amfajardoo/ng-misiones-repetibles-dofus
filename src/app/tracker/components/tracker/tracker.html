@@ -1,0 +1,56 @@
+<div class="main">
+  <div class="stats-grid" data-testid="stats-grid">
+    <div class="stat-card gold">
+      <div class="stat-label">Kamas ganadas hoy</div>
+      <div class="stat-val">
+        {{ stats.dailyKamasSummary().earnedDailyKamas | formatNumber }}
+      </div>
+      <div class="stat-unit">
+        de {{ stats.dailyKamasSummary().maxDailyKamas | formatNumber }} posibles
+      </div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-label">Completadas</div>
+      <div class="stat-val">{{ stats.overallProgress().questCounts.completedQuests }}</div>
+      <div class="stat-unit">
+        de {{ stats.overallProgress().questCounts.totalQuests }} misiones
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Kamas restantes</div>
+      <div class="stat-val">
+        {{ stats.dailyKamasSummary().remainingDailyKamas | formatNumber }}
+      </div>
+      <div class="stat-unit">por recolectar hoy</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    @for (f of filters; track f.value) {
+      <button
+        mat-stroked-button
+        class="filter-btn"
+        [class.active]="periodFilter() === f.value"
+        [attr.aria-pressed]="periodFilter() === f.value"
+        (click)="setPeriodFilter(f.value)"
+      >
+        {{ f.label }}
+      </button>
+    }
+    <button mat-stroked-button class="reset-btn" (click)="clearAllCompletions()">
+      <mat-icon>restart_alt</mat-icon>
+      Desmarcar todo
+    </button>
+  </div>
+
+  @for (zone of zonesToShow(); track zone.id) {
+    <app-zone-section [zone]="zone" [periodFilter]="periodFilter()" />
+  }
+
+  <div class="footer-note">
+    <strong>⚠ Reglas especiales:</strong> Las misiones de <strong>Bonta / Neutral / Brakmar</strong>
+    varían según tu alineación; solo una es realizable por día. Las
+    <strong>Misiones de Oficios</strong>: solo una por día según tu oficio de recolección.<br />
+    <strong>🗓</strong> Excluye eventos estacionales (Pascua, Nawidad, Vulkania, Frigost).
+  </div>
+</div>

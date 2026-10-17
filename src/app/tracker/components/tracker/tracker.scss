@@ -1,0 +1,157 @@
+.main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 20px 80px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  &.gold::before {
+    background: var(--gold);
+  }
+
+  &.teal::before {
+    background: var(--teal);
+  }
+
+  &.blue::before {
+    background: var(--blue);
+  }
+
+  &.green::before {
+    background: var(--green);
+  }
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 6px;
+}
+
+.stat-val {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1;
+}
+
+.stat-card.gold .stat-val {
+  color: var(--gold2);
+}
+
+.stat-card.teal .stat-val {
+  color: var(--teal);
+}
+
+.stat-card.blue .stat-val {
+  color: var(--blue);
+}
+
+.stat-card.green .stat-val {
+  color: var(--green);
+}
+
+.stat-unit {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text2);
+
+  &:hover {
+    border-color: var(--border2);
+    color: var(--text);
+  }
+
+  &.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold2);
+  }
+}
+
+.reset-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid rgba(192, 57, 43, 0.3);
+  color: var(--red);
+
+  &:hover {
+    background: var(--red-dim);
+    border-color: var(--red);
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-inline-end: 4px;
+  }
+}
+
+.footer-note {
+  margin-top: 28px;
+  padding: 16px 18px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.7;
+
+  strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 680px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main {
+    padding: 16px 12px 60px;
+  }
+}

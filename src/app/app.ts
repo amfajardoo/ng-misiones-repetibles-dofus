@@ -1,12 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { RouterOutlet } from '@angular/router';
+import { QuestStatsService } from './tracker/services/quest-stats.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, MatProgressBar],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
 export class App {
-  protected readonly title = signal('ng-misiones-repetibles-dofus');
+  protected readonly stats = inject(QuestStatsService);
 }

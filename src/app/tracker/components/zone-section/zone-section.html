@@ -1,0 +1,117 @@
+<section class="zone-section" [class.collapsed]="isCollapsed()">
+  <button
+    type="button"
+    class="zone-header"
+    [attr.aria-expanded]="!isCollapsed()"
+    (click)="toggleCollapse()"
+  >
+    <span class="zone-icon" aria-hidden="true">{{ zone().icon }}</span>
+    <span class="zone-name">{{ zone().name }}</span>
+    <span class="zone-meta">
+      @if (kamasSummary().remainingKamas === 0) {
+        <span class="zone-kamas zone-done">
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+          completada
+        </span>
+      } @else if (kamasSummary().totalKamas > 0) {
+        <span class="zone-kamas">
+          {{ kamasSummary().remainingKamas | formatNumber }}k restantes
+        </span>
+      }
+      <span class="zone-prog-wrap">
+        <mat-progress-bar
+          class="zone-prog-bar"
+          mode="determinate"
+          [value]="completion().completionPercentage"
+        />
+        <span class="zone-prog-txt">
+          {{ completion().completedQuests }}/{{ completion().totalQuests }}
+        </span>
+      </span>
+      <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
+    </span>
+  </button>
+
+  @if (!isCollapsed()) {
+    <div class="zone-body">
+      @if (zone().variant && zone().variantNote) {
+        <div class="variant-note">
+          <span aria-hidden="true">⚡</span>
+          {{ zone().variantNote }}
+        </div>
+      }
+      <table mat-table [dataSource]="visibleQuests()" class="quest-table">
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Misión</th>
+          <td mat-cell *matCellDef="let quest" class="td-name">
+            <a
+              class="quest-link"
+              [href]="quest.url"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span
+                class="quest-name-text"
+                [class.done]="quest.id | questCompleted:progress.completedQuests()"
+              >
+                {{ quest.name }}
+              </span>
+            </a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="kamas">
+          <th mat-header-cell *matHeaderCellDef class="th-kamas">Kamas</th>
+          <td mat-cell *matCellDef="let quest" class="kamas-cell" [class.zero]="quest.kamas === 0">
+            @if (quest.kamas > 0) {
+              {{ quest.kamas | formatNumber }}
+            } @else {
+              —
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="annexe">
+          <th mat-header-cell *matHeaderCellDef>Extra</th>
+          <td mat-cell *matCellDef="let quest" class="annexe-cell">
+            {{ quest.annexe || '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="period">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let quest">
+            <span
+              class="pill"
+              [class.daily]="quest.period === 'daily'"
+              [class.weekly]="quest.period === 'weekly'"
+            >
+              {{ quest.period === 'daily' ? 'Diaria' : 'Semanal' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="check">
+          <th mat-header-cell *matHeaderCellDef class="th-check">
+            <mat-icon aria-hidden="true">check</mat-icon>
+          </th>
+          <td mat-cell *matCellDef="let quest">
+            <mat-checkbox
+              [checked]="quest.id | questCompleted:progress.completedQuests()"
+              [attr.aria-label]="'Completar misión ' + quest.name"
+              (change)="setQuestCompleted(quest.id, $event.checked)"
+            />
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="quest-row"
+          [class.done]="row.id | questCompleted:progress.completedQuests()"
+        ></tr>
+      </table>
+    </div>
+  }
+</section>
