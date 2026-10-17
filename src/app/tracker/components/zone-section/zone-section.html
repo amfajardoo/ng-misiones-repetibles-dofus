@@ -2,7 +2,8 @@
   <button
     type="button"
     class="zone-header"
-    [attr.aria-expanded]="!isCollapsed()"
+    data-testid="zone-header"
+    [aria-expanded]="!isCollapsed()"
     (click)="toggleCollapse()"
   >
     <span class="zone-icon" aria-hidden="true">{{ zone().icon }}</span>
@@ -98,7 +99,7 @@
           <td mat-cell *matCellDef="let quest">
             <mat-checkbox
               [checked]="quest.id | questCompleted:progress.completedQuests()"
-              [attr.aria-label]="'Completar misión ' + quest.name"
+              [aria-label]="'Completar misión ' + quest.name"
               (change)="setQuestCompleted(quest.id, $event.checked)"
             />
           </td>

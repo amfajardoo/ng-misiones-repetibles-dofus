@@ -31,7 +31,7 @@
         mat-stroked-button
         class="filter-btn"
         [class.active]="periodFilter() === f.value"
-        [attr.aria-pressed]="periodFilter() === f.value"
+        [aria-pressed]="periodFilter() === f.value"
         (click)="setPeriodFilter(f.value)"
       >
         {{ f.label }}

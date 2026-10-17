@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { ZONES } from '../data/zones';
+import { ZONE_CATALOGUE } from '../data/zone-catalogue.token';
 import { Quest } from '../models/quest';
 import { QuestPeriodFilter } from '../models/period';
 import { Zone } from '../models/zone';
@@ -39,8 +39,7 @@ export interface ZoneKamasSummary {
 @Injectable({ providedIn: 'root' })
 export class QuestStatsService {
   private readonly progress = inject(QuestProgressService);
-
-  readonly zones: readonly Zone[] = ZONES;
+  private readonly zones = inject(ZONE_CATALOGUE);
 
   readonly overallProgress = computed<OverallProgress>(() => {
     const completed = this.progress.completedQuests();
