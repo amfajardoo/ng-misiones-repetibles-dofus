@@ -1,1 +1,57 @@
-/* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+
+:root {
+  --bg: #080a0e;
+  --bg2: #0d1017;
+  --bg3: #12161f;
+  --bg4: #181d28;
+  --border: #1e2535;
+  --border2: #2a3346;
+  --gold: #d4a017;
+  --gold2: #f0c040;
+  --gold-dim: rgba(212, 160, 23, 0.12);
+  --teal: #1aaa80;
+  --teal-dim: rgba(26, 170, 128, 0.12);
+  --blue: #3a7bd5;
+  --blue-dim: rgba(58, 123, 213, 0.12);
+  --red: #c0392b;
+  --red-dim: rgba(192, 57, 43, 0.1);
+  --green: #27ae60;
+  --green-dim: rgba(39, 174, 96, 0.12);
+  --text: #c8cfe0;
+  --text2: #7a8499;
+  --text3: #4a5268;
+  --white: #e8ecf5;
+}
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$orange-palette,
+        tertiary: mat.$green-palette,
+        is-dark: true,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  color-scheme: dark;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+}
