@@ -1,23 +1,38 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MatProgressBarHarness } from '@angular/material/progress-bar/testing';
+import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { App } from './app';
+import { AppHarness } from './app.harness';
+
+@Component({
+  imports: [App],
+  template: '<app-root />',
+})
+class AppHost {}
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [AppHost],
     }).compileComponents();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  it('renders the header progress bar', async () => {
+    const fixture = TestBed.createComponent(AppHost);
+    await fixture.whenStable();
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const bar = await loader.getHarness(MatProgressBarHarness);
+
+    expect(await bar.getMode()).toBe('determinate');
   });
 
-  it('should render the app title in the header', async () => {
-    const fixture = TestBed.createComponent(App);
+  it('renders the app title in the header', async () => {
+    const fixture = TestBed.createComponent(AppHost);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Misiones');
+    const loader = TestbedHarnessEnvironment.loader(fixture);
+    const harness = await loader.getHarness(AppHarness);
+
+    expect(await harness.getTitleText()).toContain('Misiones');
   });
 });
