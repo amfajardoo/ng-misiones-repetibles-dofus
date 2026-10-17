@@ -8,6 +8,18 @@ and TypeScript best practices.
 - If two rules conflict, or a rule cannot be followed, STOP and ask. Never work
   around a rule silently.
 
+## Detailed rules (read before working)
+
+| When you are about to... | Read first |
+|--------------------------|------------|
+| Create or modify any `*.spec.ts` | `.github/instructions/testing.md` |
+| Create or modify components, templates, services, routes, forms | `.github/instructions/angular.md` |
+| Touch any template or interactive UI (labels, ARIA, focus, keyboard) | `.github/instructions/accessibility.md` |
+| Commit or open a PR | `.github/instructions/process.md` |
+
+Reading the matching file is part of the task. The sections below are only the
+non-negotiables; the linked files hold the details and examples.
+
 ## Commands and verification
 
 - `pnpm lint`, `pnpm build`, `pnpm test:run` (single run; if the script is missing,
@@ -15,19 +27,36 @@ and TypeScript best practices.
 - After every code change run them in that order. Fix any failure before declaring
   the task complete. Never report done with a failing check.
 
+## Independent review
+
+After `pnpm lint`, `pnpm build` and `pnpm test:run` pass, and BEFORE reporting
+the task as done or proposing a commit, launch the `code-reviewer` subagent.
+Give it the original task goal.
+
+- Fix every **Blocking** finding, then re-run the verification commands.
+- Fix **Should fix** findings only if they are clearly correct and within the
+  task scope. Otherwise list them for the user.
+- Run the review ONCE per task. Do not loop between implementation and review.
+- Always show the user the reviewer's remaining findings (Should fix, Nit, and
+  anything you disagreed with, with your reason) in the final summary.
+- If the reviewer cannot run or fails, say so. Never skip it silently.
+- Not required for documentation-only changes.
+
 ## Boundaries
 
 ### Always do
 
 - Run the verification commands before declaring a task complete.
-- Read `.github/instructions/testing.md` BEFORE touching any `*.spec.ts`.
-- Read `.github/instructions/process.md` BEFORE committing or opening a PR.
+- Run the independent review (`code-reviewer`) after the checks pass.
+- Read the instruction file that matches the task (table above) BEFORE starting.
 
 ### Ask first
 
 - Adding or removing dependencies.
 - Changing build, test, or lint configuration (including ESLint rules).
 - Modifying the public API of a shared service or component.
+- Using `bypassSecurityTrust*`, `innerHTML`, or any other way around Angular's
+  sanitization.
 
 ### Never do
 
@@ -36,6 +65,7 @@ and TypeScript best practices.
 - Mix tooling/setup changes with feature code in the same commit.
 - Write to `node_modules/`, `dist/`, or other generated directories.
 - Disable or downgrade an ESLint rule (rules in `eslint.config.js` are `error`).
+- Leave `console.*` or `debugger` in committed code, specs included.
 
 ## Process essentials
 
@@ -58,14 +88,13 @@ Details and the PR template: `.github/instructions/process.md`.
 
 - Strict typing. Prefer inference when the type is obvious.
 - No `any`; use `unknown` when the type is uncertain.
+- No non-null assertions (`!`) and no `as` casts to silence the compiler. Narrow
+  the type instead.
+- `readonly` by default for injected services, inputs, outputs, and signals.
+- Comments explain WHY, never WHAT. Do not leave commented-out code.
 
-## Angular
+## Code organization
 
-- Standalone components only. Do NOT set `standalone: true` (default).
-- Do NOT set `changeDetection: OnPush` explicitly (default).
-- Lazy-load feature routes.
-- No `@HostBinding` / `@HostListener`; use the `host` object in the decorator.
-- `NgOptimizedImage` for static images (not for inline base64).
 - **One declaration per file.** Small private helper types used only by that
   declaration may stay in the same file; exported or reused ones get their own.
 - **No inline SVGs.** Use SVG icon components.
@@ -76,62 +105,43 @@ Details and the PR template: `.github/instructions/process.md`.
 - **File length.** No file over 200 lines of code (blank lines and comments
   excluded). Split into focused files in a reasonable way; no cramming, cryptic
   names, or other tricks. Prefer enforcing it with ESLint `max-lines` (ask first).
-- **Directives** for DOM manipulation, event handling, and reusable UI logic;
-  structural directives for permission/auth checks.
+- **Instruction files** follow the same limit. When one grows past it, extract a
+  topic into its own file and reference it from here.
 
-## Components
+## Angular essentials
 
-- Build on **Angular Material**. Use the Material component that covers the needed
-  semantics; reimplementing a Material primitive is a defect.
-- Small, single-responsibility components. Prefer inline templates when small.
-- `input()` / `output()` functions, not decorators. `model()` for `[(prop)]`.
-- `computed()` for derived state; `linkedSignal()` for state derived from several
-  sources that must stay in sync.
-- Prefer Signal Forms (`@angular/forms/signals`) for new forms; otherwise Reactive
-  forms, never Template-driven.
-- No `ngClass` / `ngStyle`; use `class` and `style` bindings.
-- External templates/styles use paths relative to the component file.
+Details: `.github/instructions/angular.md`.
+
+- Standalone components only. Do NOT set `standalone: true` or
+  `changeDetection: OnPush` (both are the default).
+- Signals first: `signal()`, `computed()`, `input()` / `output()`, `inject()`.
+  No constructor injection, no `BehaviorSubject` for local state.
+- Native control flow (`@if`, `@for` with `track`, `@switch`). No `*ngIf`,
+  `ngClass`, `ngStyle`, or `CommonModule`.
+- Build on **Angular Material**; reimplementing a Material primitive is a defect.
+- Lazy-load feature routes. Use the `host` object, never `@HostBinding` /
+  `@HostListener`.
+- Async data with `resource()` / `httpResource()`. `effect()` only for side
+  effects. Components never call `HttpClient` directly.
 
 ## Accessibility
 
-- MUST meet WCAG AA: focus management, color contrast, ARIA attributes.
-- Rely on Angular Material's built-in semantics, and assert them in specs (roles,
-  labels, names, focus, keyboard) through harnesses. See testing.md.
+Details: `.github/instructions/accessibility.md`. MUST meet WCAG AA.
 
-## State and reactivity
-
-| Situation | Use | Do NOT use |
-|-----------|-----|------------|
-| Value derived from other signals | `computed()` | `effect()` setting a signal |
-| Derived from several sources, must stay in sync | `linkedSignal()` | `computed()` + `effect()` |
-| Local component state | `signal()` | `BehaviorSubject` |
-| Side effect (logging, analytics, DOM) | `effect()` | `computed()` |
-| Async data fetch | `resource()` / `httpResource()` | `subscribe()` + manual `set` |
-
-- Keep state transformations pure. Use `update` / `set`, never `mutate`.
-
-## Templates
-
-- Keep them simple. Native control flow (`@if`, `@for`, `@switch`), `track` always.
-- Async pipe for observables.
-- Templates cannot access globals like `new Date()`; expose the value from the
-  class (signal or `computed()`).
-- No `CommonModule`; import only the directives/pipes used (`AsyncPipe`, ...).
-
-## Services
-
-- Single responsibility. Use `inject()`, not constructor injection.
-- New root singletons use `@Service()`. Use `@Injectable` only for non-root scopes
-  (`platform`, `any`, a module) or when editing an existing one. Do not migrate
-  existing services as a side effect of a feature change.
+- Native element first, Material second, ARIA last.
+- Static ARIA is a plain attribute (`aria-label="Close"`). Bind only when the
+  value is dynamic (`[aria-label]="label()"`). Never write `attr.aria-label="..."`.
+- Every interactive control has an accessible name.
+- Assert semantics in specs through harnesses (see testing.md).
 
 ## Testing
 
 Read `.github/instructions/testing.md` first. Non-negotiable:
 
+- Test behavior, not implementation: never private members, component methods,
+  or internal signals. Assert only what a user or consumer can observe.
 - Vitest (`vi`), never Jasmine APIs. No `fakeAsync` / `tick`.
-- AAA structure; nested `describe` blocks naming the behavior.
-- Test behavior, not functions.
+- AAA with no `// Arrange` comments and one blank line between blocks.
+- No `console.*`, `.only`, `.skip`, `any`, `done`, or `.subscribe()` in specs.
 - Always drive component specs through a CDK `ComponentHarness` (Material first);
   no raw DOM queries.
-- Never `.subscribe()` in specs; use `lastValueFrom` / `firstValueFrom`.
